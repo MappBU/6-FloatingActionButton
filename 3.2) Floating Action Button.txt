@@ -1,0 +1,152 @@
+Floating Action Button.
+
+	! Это плавающая кнопка, которая находится всегда поверх контента.
+	! Документация: https://material.io/components/buttons-floating-action-button/android#using-fabs
+	! Есть 3 вида плавающей кнопки: Обычная, Мини, Экстентед
+	! При тапе куда нибудь, плавающая кнопка через .kt может скрываться и показываться (С крутым анимационным эффектом)
+	! Это основной арсенал при работе с плавающей кнопкой, остальное применяется в 10% случаев.
+	
+--------------------------------------------------------------------------------------------------------------------
+ Regular FAB & Extended FAB
+--------------------------------------------------------------------------------------------------------------------	
+--------------------------------------------------------------------------------------------------------------------
+ XML
+--------------------------------------------------------------------------------------------------------------------
+	
+	<?xml version="1.0" encoding="utf-8"?>
+
+	<layout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto"
+		xmlns:tools="http://schemas.android.com/tools">
+
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			tools:context=".MainActivity">
+
+			<!-- Кнопка показывающая Плавающую кнопку -->
+			<Button
+				android:id="@+id/display"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				android:layout_margin="16dp"
+				android:text="@string/display"
+				android:backgroundTint="@color/orange"
+				android:textColor="@color/black"/>
+
+			<!-- Кнопка скрывающая Плавающую кнопку -->
+			<Button
+				android:id="@+id/hide"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintEnd_toEndOf="parent"
+				android:layout_margin="16dp"
+				android:text="@string/hide"
+				android:backgroundTint="@color/orange"
+				android:textColor="@color/black"/>
+		
+			<!-- Основной Контент -->
+			<FrameLayout
+				android:id="@+id/content"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:layout_constraintTop_toTopOf="@id/hide"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintBottom_toBottomOf="parent "/>
+
+			<!-- Обязательный контейнер для многих виджетов MD -->
+			<androidx.coordinatorlayout.widget.CoordinatorLayout
+				android:id="@+id/coordinatorFAB"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				app:layout_constraintBottom_toBottomOf="parent"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent">
+				
+				<!-- Расширенная плавающая кнопка с текстом -->
+				<com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/fabExtended"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/orange"
+                app:icon="@drawable/shop"
+                app:iconTint="@android:color/holo_blue_dark"
+                android:text="@string/shop"
+                android:textColor="@android:color/holo_blue_dark"
+                android:contentDescription="@string/shop"
+                android:layout_gravity="bottom|left"
+                android:layout_margin="16dp"/>
+
+				<!--
+				backgroundTint - фон актион баттона
+				android:src - задаем иконку (Она в любом случае будет черная по дефолту)
+				app:tint - Делает цвет этой иконки БЕЛЫМ (или: binding?.fab?.setColorFilter(Color.YELLOW) в .kt)
+				android:contentDescription - описание кнопки (Нигде не фигурирует)
+				android:layout_gravity="bottom|right" - отображать иконку в нижнем правом углу
+				android:layout_margin - внешний отступ со всех сторон
+				-->
+				<com.google.android.material.floatingactionbutton.FloatingActionButton
+					android:id="@+id/fab"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:backgroundTint="@color/white"
+					android:src="@drawable/delivery"
+					app:tint="@color/white"
+					android:contentDescription="@string/delivery"
+					android:layout_gravity="bottom|right"
+					android:layout_margin="16dp"/>
+
+			</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+		</androidx.constraintlayout.widget.ConstraintLayout>
+
+	</layout>
+
+--------------------------------------------------------------------------------------------------------------------
+ KT
+--------------------------------------------------------------------------------------------------------------------
+	
+	// Интерфейс нужен, чтобы обращаться "this"
+	class MainActivity : AppCompatActivity(), View.OnClickListener {
+
+		private var binding: ActivityMainBinding? = null
+
+		override fun onCreate(savedInstanceState: Bundle?) {
+			super.onCreate(savedInstanceState)
+			binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+			
+			// Скрываем Плавающую кнопку при запуске приложения
+			binding?.fab?.hide()
+
+			// Назначаем тапы по кнопке (В переопределенном методе)
+			// Внутри метода нет this (Поэтому this@MainActivity)
+			binding?.apply {
+				fab.setOnClickListener(this@MainActivity)
+				fabExtended.setOnClickListener(this@MainActivity)
+				display.setOnClickListener(this@MainActivity)
+				hide.setOnClickListener(this@MainActivity)
+			}
+
+		}
+
+		override fun onClick(view: View?) {
+			when(view?.id) {
+				R.id.fab -> supportFragmentManager.beginTransaction().replace(R.id.content, Delivery()).commit()
+				R.id.fabExtended -> supportFragmentManager.beginTransaction().replace(R.id.content, Shop()).commit()
+				R.id.display -> binding?.fab?.show()
+				R.id.hide -> binding?.fab?.hide()
+			}
+
+		}
+		
+	}
+
+
+--------------------------------------------------------------------------------------------------------------------
+ 
+ Result: https://i.piccy.info/i9/7ea03f1b6e36efb837d1f030603032df/1632422955/13349/1441523/IMG_20210923_214528.jpg
